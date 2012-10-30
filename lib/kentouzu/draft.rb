@@ -42,8 +42,11 @@ class Draft < ActiveRecord::Base
           model = item
         else
           inheritance_column_name = item_type.constantize.inheritance_column
-          class_name = attrs[inheritance_column_name].blank? ? item_type : attrs[inheritance_column_name]
+
+          class_name = loaded_object.respond_to?(inheritance_column_name.to_sym) ? inheritance_column_name : item_type
+
           klass = class_name.constantize
+
           model = klass.new
         end
 
@@ -81,11 +84,13 @@ class Draft < ActiveRecord::Base
       end
     end
 
+    self.destroy
+
     model
   end
 
   def reject
-
+    self.destroy
   end
 
   private

@@ -43,6 +43,10 @@ module Kentouzu
                  :order      => "#{Kentouzu.timestamp_field} ASC, #{self.draft_class_name.constantize.primary_key} ASC",
                  :dependent  => :destroy
 
+        define_singleton_method "new_#{drafts_association_name.to_s}".to_sym do
+          Draft.where(:item_type => self.name, :event => 'create')
+        end
+
         def drafts_off
           self.drafts_enabled_for_model = false
         end
@@ -74,9 +78,9 @@ module Kentouzu
         end
       end
 
-      #def live?
-      #  source_draft.nil?
-      #end
+      def live?
+        source_draft.nil?
+      end
 
       def draft_at timestamp, reify_options = {}
         v = send(self.class.versions_association_name).following(timestamp).first
@@ -101,13 +105,13 @@ module Kentouzu
 
       private
 
-      #def draft_class
-      #  draft_class_name.constantize
-      #end
-      #
-      #def source_draft
-      #  send self.class.draft_association_name
-      #end
+      def draft_class
+        draft_class_name.constantize
+      end
+
+      def source_draft
+        send self.class.draft_association_name
+      end
 
       def switched_on?
         Kentouzu.enabled? && Kentouzu.enabled_for_controller? && self.class.drafts_enabled_for_model
