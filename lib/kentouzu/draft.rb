@@ -103,7 +103,7 @@ class Draft < ActiveRecord::Base
       child = model.send association.name
 
       if child.respond_to? :draft_at
-        if (child_as_it_was = child.draft_at(send(Drafts.timestamp_field) - lookback.seconds))
+        if (child_as_it_was = child.draft_at(send(Kentouzu.timestamp_field) - lookback.seconds))
           child_as_it_was.attributes.each do |key, value|
             model.send(association.name).send :write_attribute, key.to_sym, value rescue nil
           end

@@ -61,7 +61,7 @@ module Kentouzu
           if switched_on? && save_draft?
             puts "calling new save"
 
-            draft = Draft.new(:item_type => self.class.to_s, :item_id => self.id, :event => self.persisted? ? "update" : "create", :source_type => Drafts.source.present? ? Drafts.source.class.to_s : nil, :source_id => Drafts.source.present? ? Drafts.source.id : nil, :object => self.to_yaml)
+            draft = Draft.new(:item_type => self.class.to_s, :item_id => self.id, :event => self.persisted? ? "update" : "create", :source_type => Kentouzu.source.present? ? Kentouzu.source.class.to_s : nil, :source_id => Kentouzu.source.present? ? Kentouzu.source.id : nil, :object => self.to_yaml)
 
             draft.save
           else
