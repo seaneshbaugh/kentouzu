@@ -35,7 +35,7 @@ module Kentouzu
         self.drafts_enabled_for_model = true
 
         class_attribute :drafts_association_name
-        self.drafts_association_name = options[:draft] || :draft
+        self.drafts_association_name = options[:drafts] || :drafts
 
         has_many self.drafts_association_name,
                  :class_name => draft_class_name,
