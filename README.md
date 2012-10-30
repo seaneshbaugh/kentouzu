@@ -10,15 +10,15 @@ This gem has only been tested on Rails 3.2. There is no reason that I am aware o
 
 Add the gem to your project's Gemfile:
 
-    `gem 'kentouzu'`
+    gem 'kentouzu'
 
 Generate a migration for the drafts table:
 
-    `rails g kentouzu:install`
+    rails g kentouzu:install
 
 Run the migration:
 
-    `rake db:migrate`
+    rake db:migrate
 
 Add `has_drafts` to the models you want to have drafts on.
 
