@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path('../lib', __FILE__)
-require 'drafts/version'
+require 'kentouzu/version'
 
 Gem::Specification.new do |s|
   s.name        = 'kentouzu'
