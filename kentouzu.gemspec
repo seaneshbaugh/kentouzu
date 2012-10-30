@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = Kentouzu::VERSION
   s.authors     = ['Sean Eshbaugh']
   s.email       = ['seaneshbaugh@gmail.com']
-  s.homepage    = 'http:://seaneshbaugh.com/'
+  s.homepage    = 'http://seaneshbaugh.com/'
   s.summary     = 'Add drafts to ActiveRecord models.'
   s.description = 'Add drafts to ActiveRecord models.'
 
