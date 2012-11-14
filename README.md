@@ -1,6 +1,6 @@
 # Kentouzu
 
-Kentouzu is a Ruby gem that lets you create draft versions of your ActiveRecord models upon saving. If you're developing a publishing approval queue then Kentouzu just might be what you need. It's heavily based off the wonderful [paper_trail](https://github.com/airblade/paper_trail) gem. In fact, much of the code for this gem was pretty much lifted line for line from paper_trail (because it works beautifully). You should definitely check out paper_trail and it's source. It's a nice clean example of a gem that hooks into Rails.
+Kentouzu is a Ruby gem that lets you create draft versions of your ActiveRecord models upon saving. If you're developing a publishing approval queue then Kentouzu just might be what you need. It's heavily based off the wonderful [paper_trail](https://github.com/airblade/paper_trail) gem. In fact, much of the code for this gem was pretty much lifted line for line from paper_trail (because it works beautifully). You should definitely check out paper_trail and its source. It's a nice clean example of a gem that hooks into Rails.
 
 ## Rails Version
 
