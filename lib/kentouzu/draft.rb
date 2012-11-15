@@ -34,7 +34,7 @@ class Draft < ActiveRecord::Base
 
       unless object.nil?
         #This appears to be necessary if for some reason the draft's model hasn't been loaded (such as when done in the console).
-        require self.item_type.downcase
+        require self.item_type.underscore
 
         loaded_object = YAML::load object
 

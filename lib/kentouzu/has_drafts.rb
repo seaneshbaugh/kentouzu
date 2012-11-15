@@ -87,16 +87,20 @@ module Kentouzu
         v ? v.reify(reify_options) : self
       end
 
+      def with_drafts method = nil
+        drafts_were_enabled = self.drafts_enabled_for_model
+
+        self.class.drafts_on
+
+        method ? method.to_proc.call(self) : yield
+      ensure
+        self.class.drafts_off unless drafts_were_enabled
+      end
+
       def without_drafts method = nil
         drafts_were_enabled = self.drafts_enabled_for_model
 
-        puts "drafts_were_enabled #{drafts_were_enabled}"
-
         self.class.drafts_off
-
-        puts "self.drafts_enabled_for_model #{self.drafts_enabled_for_model}"
-
-        puts method
 
         method ? method.to_proc.call(self) : yield
       ensure
