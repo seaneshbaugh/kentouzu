@@ -1,3 +1,7 @@
+## v0.0.4
+
+* `save` now uses `base_class` instead of just `class`.
+
 ## v0.0.3
 
 * Fixed the require in reify. `self.item_type.underscore` instead of `self.item_type.downcase`.
