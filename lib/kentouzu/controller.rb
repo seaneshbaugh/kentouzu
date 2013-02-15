@@ -22,16 +22,16 @@ module Kentouzu
 
     private
 
-    def set_drafts_enabled_for_controller
-      ::Kentouzu.enabled_for_controller = drafts_enabled_for_controller
-    end
-
     def set_drafts_source
       ::Kentouzu.source = user_for_drafts
     end
 
     def set_drafts_controller_info
       ::Kentouzu.controller_info = info_for_drafts
+    end
+
+    def set_drafts_enabled_for_controller
+      ::Kentouzu.enabled_for_controller = drafts_enabled_for_controller
     end
   end
 end

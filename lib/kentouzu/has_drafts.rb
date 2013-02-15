@@ -69,10 +69,6 @@ module Kentouzu
 
             draft.save
           else
-            puts "calling default save"
-
-            puts self.inspect
-
             default_save.bind(self).()
           end
         end

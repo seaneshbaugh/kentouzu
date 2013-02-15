@@ -1,3 +1,7 @@
+## v0.0.5
+
+* Removed debug output from new save method.
+
 ## v0.0.4
 
 * `save` now uses `base_class` instead of just `class`.
