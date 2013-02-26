@@ -1,3 +1,7 @@
+## v0.0.7
+
+* Updated dependencies to allow for Rails 4.
+
 ## v0.0.6
 
 * Removed debug output from new save method.
