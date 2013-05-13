@@ -43,7 +43,7 @@ class Draft < ActiveRecord::Base
         else
           inheritance_column_name = item_type.constantize.inheritance_column
 
-          class_name = loaded_object.respond_to?(inheritance_column_name.to_sym) ? loaded_object.send(inheritance_column_name.to_sym) : item_type
+          class_name = loaded_object.respond_to?(inheritance_column_name.to_sym) && loaded_object.send(inheritance_column_name.to_sym).present? ? loaded_object.send(inheritance_column_name.to_sym) : item_type
 
           klass = class_name.constantize
 

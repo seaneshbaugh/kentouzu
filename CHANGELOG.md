@@ -1,3 +1,8 @@
+## v0.0.8
+
+* Fixed bug that occurs when reifying object with STI when type column is blank.
+* Started adding a dummy test app.
+
 ## v0.0.7
 
 * Updated dependencies to allow for Rails 4.
