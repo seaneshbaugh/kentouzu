@@ -7,7 +7,7 @@ require 'kentouzu/has_drafts'
 require 'kentouzu/draft'
 
 module Kentouzu
-  def self.enabled= value
+  def self.enabled=(value)
     Kentouzu.config.enabled = value
   end
 
@@ -15,7 +15,7 @@ module Kentouzu
     !!Kentouzu.config.enabled
   end
 
-  def self.enabled_for_controller= value
+  def self.enabled_for_controller=(value)
     drafts_store[:request_enabled_for_controller] = value
   end
 
@@ -23,7 +23,7 @@ module Kentouzu
     !!drafts_store[:request_enabled_for_controller]
   end
 
-  def self.timestamp_field= field_name
+  def self.timestamp_field=(field_name)
     Kentouzu.config.timestamp_field = field_name
   end
 
@@ -31,7 +31,7 @@ module Kentouzu
     Kentouzu.config.timestamp_field
   end
 
-  def self.source= value
+  def self.source=(value)
     drafts_store[:source] = value
   end
 
@@ -39,7 +39,7 @@ module Kentouzu
     drafts_store[:source]
   end
 
-  def self.controller_info= value
+  def self.controller_info=(value)
     drafts_store[:controller_info] =  value
   end
 

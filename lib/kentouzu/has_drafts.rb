@@ -5,7 +5,7 @@ module Kentouzu
     end
 
     module ClassMethods
-      def has_drafts options = {}
+      def has_drafts(options = {})
         send :include, InstanceMethods
 
         class_attribute :draft_association_name
@@ -47,6 +47,32 @@ module Kentouzu
           Draft.where(:item_type => self.name, :event => 'create')
         end
 
+        define_singleton_method "all_with_reified_#{drafts_association_name.to_s}".to_sym do |order_by = Kentouzu.timestamp_field|
+          existing_drafts = Draft.where("`drafts`.`item_type` = \"#{self.name}\" AND `drafts`.`item_id` IS NOT NULL").group_by { |draft| draft.item_id }.map { |k, v| v.sort_by { |draft| draft.created_at }.first }
+
+          new_drafts = Draft.where("`drafts`.`item_type` = \"#{self.name}\" AND `drafts`.`item_id` IS NULL")
+
+          existing_reified_objects = existing_drafts.map { |draft| draft.reify }
+
+          new_reified_objects = new_drafts.map do |draft|
+            object = draft.reify
+
+            object.send "#{Kentouzu.timestamp_field}=", draft.created_at
+
+            object
+          end
+
+          existing_objects = self.all.reject { |object| existing_reified_objects.map { |reified_object| reified_object.id }.include? object.id }
+
+          all_objects = (existing_objects + existing_reified_objects + new_reified_objects).sort_by { |object| object.send order_by }
+
+          if block_given?
+            all_objects.select! { |object| yield object }
+          end
+
+          all_objects
+        end
+
         def drafts_off
           self.drafts_enabled_for_model = false
         end
@@ -67,7 +93,7 @@ module Kentouzu
 
             draft.save
           else
-            default_save.bind(self).()
+            default_save.bind(self).call
           end
         end
       end
@@ -76,12 +102,13 @@ module Kentouzu
         source_draft.nil?
       end
 
-      def draft_at timestamp, reify_options = {}
+      def draft_at(timestamp, reify_options = {})
         v = send(self.class.versions_association_name).following(timestamp).first
+
         v ? v.reify(reify_options) : self
       end
 
-      def with_drafts method = nil
+      def with_drafts(method = nil)
         drafts_were_enabled = self.drafts_enabled_for_model
 
         self.class.drafts_on
@@ -91,7 +118,7 @@ module Kentouzu
         self.class.drafts_off unless drafts_were_enabled
       end
 
-      def without_drafts method = nil
+      def without_drafts(method = nil)
         drafts_were_enabled = self.drafts_enabled_for_model
 
         self.class.drafts_off

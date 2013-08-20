@@ -7,7 +7,7 @@ class Draft < ActiveRecord::Base
 
   validates_presence_of :event
 
-  def self.with_item_keys item_type, item_id
+  def self.with_item_keys(item_type, item_id)
     scoped :conditions => { :item_type => item_type, :item_id => item_id }
   end
 
@@ -27,7 +27,7 @@ class Draft < ActiveRecord::Base
 
   scope :between, lambda { |start_time, end_time| where(["#{Kentouzu.timestamp_field} > ? AND #{Kentouzu.timestamp_field} < ?", start_time, end_time]).order("#{Kentouzu.timestamp_field} ASC, #{self.primary_key} ASC") }
 
-  def reify options = {}
+  def reify(options = {})
     without_identity_map do
       options[:has_one] = 3 if options[:has_one] == true
       options.reverse_merge! :has_one => false
@@ -95,7 +95,7 @@ class Draft < ActiveRecord::Base
 
   private
 
-  def without_identity_map &block
+  def without_identity_map(&block)
     if defined?(ActiveRecord::IdentityMap) && ActiveRecord::IdentityMap.respond_to?(:without)
       ActiveRecord::IdentityMap.without &block
     else
@@ -103,7 +103,7 @@ class Draft < ActiveRecord::Base
     end
   end
 
-  def reify_has_ones model, lookback
+  def reify_has_ones(model, lookback)
     model.class.reflect_on_all_associations(:has_one).each do |association|
       child = model.send association.name
 

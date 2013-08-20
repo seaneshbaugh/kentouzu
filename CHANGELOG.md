@@ -1,3 +1,9 @@
+## v0.0.9
+
+* Added `all_with_reified_drafts` method.
+* Changed `()` to `call` for clarity in overridden `save` method.
+* Tidied up some formatting.
+
 ## v0.0.8
 
 * Fixed bug that occurs when reifying object with STI when type column is blank.
