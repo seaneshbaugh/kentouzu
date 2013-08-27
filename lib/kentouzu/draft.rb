@@ -1,6 +1,4 @@
 class Draft < ActiveRecord::Base
-  attr_accessible :item_type, :item_id, :event, :source_type, :source_id, :object
-
   belongs_to :item, :polymorphic => true
 
   belongs_to :source, :polymorphic => true
