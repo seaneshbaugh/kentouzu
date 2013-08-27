@@ -13,5 +13,9 @@ module Kentouzu
     def create_migration_file
       migration_template 'create_drafts.rb', 'db/migrate/create_drafts.rb'
     end
+
+    def self.next_migration_number(dirname)
+      ActiveRecord::Generators::Base.next_migration_number(dirname)
+    end
   end
 end
