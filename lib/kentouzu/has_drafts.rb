@@ -89,8 +89,17 @@ module Kentouzu
 
         base.send :define_method, :save do
           if switched_on? && save_draft?
-            draft = Draft.new(:item_type => self.class.base_class.to_s, :item_id => self.id, :event => self.persisted? ? 'update' : 'create', :source_type => Kentouzu.source.present? ? Kentouzu.source.class.to_s : nil, :source_id => Kentouzu.source.present? ? Kentouzu.source.id : nil, :object => self.to_yaml)
+            data = {
+              :item_type => self.class.base_class.to_s,
+              :item_id => self.id,
+              :event => self.persisted? ? 'update' : 'create',
+              :source_type => Kentouzu.source.present? ? Kentouzu.source.class.to_s : nil,
+              :source_id => Kentouzu.source.present? ? Kentouzu.source.id : nil,
+              :object => self.to_yaml
+            }
+            data.merge!(Kentouzu.controller_info || {})
 
+            draft = Draft.new(data)
             draft.save
           else
             default_save.bind(self).call
