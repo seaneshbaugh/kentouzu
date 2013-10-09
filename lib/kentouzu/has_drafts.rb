@@ -47,7 +47,7 @@ module Kentouzu
           Draft.where(:item_type => self.name, :event => 'create')
         end
 
-        define_singleton_method "all_with_reified_#{drafts_association_name.to_s}".to_sym do |order_by = Kentouzu.timestamp_field|
+        define_singleton_method "all_with_reified_#{drafts_association_name.to_s}".to_sym do |order_by = Kentouzu.timestamp_field, &block|
           existing_drafts = Draft.where("`drafts`.`item_type` = \"#{self.name}\" AND `drafts`.`item_id` IS NOT NULL").group_by { |draft| draft.item_id }.map { |k, v| v.sort_by { |draft| draft.created_at }.first }
 
           new_drafts = Draft.where("`drafts`.`item_type` = \"#{self.name}\" AND `drafts`.`item_id` IS NULL")
@@ -66,8 +66,8 @@ module Kentouzu
 
           all_objects = (existing_objects + existing_reified_objects + new_reified_objects).sort_by { |object| object.send order_by }
 
-          if block_given?
-            all_objects.select! { |object| yield object }
+          if block
+            all_objects.select! { |object| block.call(object) }
           end
 
           all_objects

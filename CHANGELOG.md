@@ -1,3 +1,7 @@
+## v0.0.10
+
+* Fixed `all_with_reified_drafts` so that it actually takes a block.
+
 ## v0.0.9
 
 * Added `all_with_reified_drafts` method.
