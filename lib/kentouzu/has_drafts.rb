@@ -48,9 +48,9 @@ module Kentouzu
         end
 
         define_singleton_method "all_with_reified_#{drafts_association_name.to_s}".to_sym do |order_by = Kentouzu.timestamp_field, &block|
-          existing_drafts = Draft.where("`drafts`.`item_type` = \"#{self.name}\" AND `drafts`.`item_id` IS NOT NULL").group_by { |draft| draft.item_id }.map { |k, v| v.sort_by { |draft| draft.created_at }.first }
+          existing_drafts = Draft.where("`drafts`.`item_type` = \"#{self.base_class.name}\" AND `drafts`.`item_id` IS NOT NULL").group_by { |draft| draft.item_id }.map { |k, v| v.sort_by { |draft| draft.created_at }.first }
 
-          new_drafts = Draft.where("`drafts`.`item_type` = \"#{self.name}\" AND `drafts`.`item_id` IS NULL")
+          new_drafts = Draft.where("`drafts`.`item_type` = \"#{self.base_class.name}\" AND `drafts`.`item_id` IS NULL")
 
           existing_reified_objects = existing_drafts.map { |draft| draft.reify }
 
