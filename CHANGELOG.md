@@ -1,3 +1,7 @@
+## v0.0.11
+
+* Save now merges data from Kentouzu.controller_info.
+
 ## v0.0.10
 
 * Fixed `all_with_reified_drafts` so that it actually takes a block.
