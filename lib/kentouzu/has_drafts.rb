@@ -37,11 +37,19 @@ module Kentouzu
         class_attribute :drafts_association_name
         self.drafts_association_name = options[:drafts] || :drafts
 
-        has_many self.drafts_association_name,
-                 :class_name => draft_class_name,
-                 :as         => :item,
-                 :order      => "#{Kentouzu.timestamp_field} ASC, #{self.draft_class_name.constantize.primary_key} ASC",
-                 :dependent  => :destroy
+        if ActiveRecord::VERSION::STRING.to_f >= 4.0 # `has_many` syntax for specifying order uses a lambda in Rails 4
+          has_many self.drafts_association_name,
+                   lambda { order("#{Kentouzu.timestamp_field} ASC, #{self.draft_class_name.constantize.primary_key} ASC") },
+                   :class_name => draft_class_name,
+                   :as         => :item,
+                   :dependent  => :destroy
+        else
+          has_many self.drafts_association_name,
+                   :class_name => draft_class_name,
+                   :as         => :item,
+                   :order      => "#{Kentouzu.timestamp_field} ASC, #{self.draft_class_name.constantize.primary_key} ASC",
+                   :dependent  => :destroy
+        end
 
         define_singleton_method "new_#{drafts_association_name.to_s}".to_sym do
           Draft.where(:item_type => self.name, :event => 'create')
