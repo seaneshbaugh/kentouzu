@@ -39,7 +39,7 @@ module Kentouzu
 
         if ActiveRecord::VERSION::STRING.to_f >= 4.0 # `has_many` syntax for specifying order uses a lambda in Rails 4
           has_many self.drafts_association_name,
-                   lambda { order("#{Kentouzu.timestamp_field} ASC, #{self.draft_class_name.constantize.primary_key} ASC") },
+                   lambda { order("#{Kentouzu.timestamp_field} ASC, #{self.primary_key} ASC") },
                    :class_name => draft_class_name,
                    :as         => :item,
                    :dependent  => :destroy
