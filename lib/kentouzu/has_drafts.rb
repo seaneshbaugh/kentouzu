@@ -8,6 +8,8 @@ module Kentouzu
       def has_drafts(options = {})
         send :include, InstanceMethods
 
+        send :define_model_callbacks, :draft_save
+
         class_attribute :draft_association_name
         self.draft_association_name = options[:draft] || :draft
 
@@ -109,7 +111,10 @@ module Kentouzu
             data.merge!(Kentouzu.controller_info.slice(:item_type, :item_id, :event, :source_type, :source_id) || {})
 
             draft = Draft.new(data)
-            draft.save
+
+            run_callbacks :draft_save do
+              draft.save
+            end
           else
             default_save.bind(self).call
           end

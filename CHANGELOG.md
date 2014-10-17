@@ -1,3 +1,7 @@
+## v0.1.2
+
+* Added callbacks for `before_draft_save`, `after_draft_save`, and `around_draft_save`.
+
 ## v0.1.1
 
 * Fixed a bug in the `has_many :drafts` association for Rails 4. Since it uses a lambda for the order scope `self` is the class `has_drafts` was called in.
