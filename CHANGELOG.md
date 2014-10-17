@@ -1,6 +1,7 @@
 ## v0.1.2
 
 * Added callbacks for `before_draft_save`, `after_draft_save`, and `around_draft_save`.
+* Fixed a bug where invalid attributes were merged from controller options when saving a draft.
 
 ## v0.1.1
 
