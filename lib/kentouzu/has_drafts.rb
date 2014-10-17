@@ -105,7 +105,8 @@ module Kentouzu
               :source_id => Kentouzu.source.present? ? Kentouzu.source.id : nil,
               :object => self.to_yaml
             }
-            data.merge!(Kentouzu.controller_info || {})
+
+            data.merge!(Kentouzu.controller_info.slice(:item_type, :item_id, :event, :source_type, :source_id) || {})
 
             draft = Draft.new(data)
             draft.save
