@@ -9,7 +9,6 @@ module Kentouzu
     source_root File.expand_path('../templates', __FILE__)
 
     desc 'Generates (but does not run) a migration to add a drafts table.'
-
     def create_migration_file
       migration_template 'create_drafts.rb', 'db/migrate/create_drafts.rb'
     end

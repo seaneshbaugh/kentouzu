@@ -1,17 +1,14 @@
-# -*- encoding: utf-8 -*-
-$:.push File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
 require 'kentouzu/version'
 
 Gem::Specification.new do |s|
   s.name        = 'kentouzu'
   s.version     = Kentouzu::VERSION
-  s.authors     = ['Sean Eshbaugh']
-  s.email       = ['seaneshbaugh@gmail.com']
-  s.homepage    = 'https://github.com/seaneshbaugh/kentouzu'
   s.summary     = 'Add drafts to ActiveRecord models.'
-  s.description = 'Add drafts to ActiveRecord models.'
-
-  s.rubyforge_project = 'kentouzu'
+  s.description = s.summary
+  s.homepage    = 'https://github.com/seaneshbaugh/kentouzu'
+  s.authors     = ['Sean Eshbaugh']
+  s.email       = 'seaneshbaugh@gmail.com'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

@@ -1,3 +1,12 @@
+## v0.1.3
+
+* Deprecated `drafts_on` and `drafts_off` in favor of `drafts_on!` and `drafts_off!`.
+* Added `Kentouzu.enabled_for_model` and `Kentouzu.enabled_for_model?`.
+* Added `Kentouzu.active_record_protected_attributes?` to enable handling of attr_accessible.
+* Attempt to load `protected_attributes` gem if it's available.
+* Added `Draft.with_source_keys`.
+* Deprecated `Draft#approve` and `Draft#reject`.
+
 ## v0.1.2
 
 * Added callbacks for `before_draft_save`, `after_draft_save`, and `around_draft_save`.

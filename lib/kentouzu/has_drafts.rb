@@ -5,41 +5,59 @@ module Kentouzu
     end
 
     module ClassMethods
+      # By calling this in your model all subsequent calls to save will instead create a draft.
+      # Drafts are available through the `drafts` association.
+      #
+      # Options:
+      # :class_name   The name of a custom Draft class. Should inherit from `Kentouzu::Draft`.
+      #               Default is `'Draft'`.
+      # :draft        The name for the method which returns the draft the instance was reified from.
+      #               Default is `:draft`.
+      # :drafts       The name to use for the drafts association.
+      #               Default is `:drafts`.
+      # :if           Proc that allows you to specify the conditions under which drafts are made.
+      # :ignore       An Array of attributes that will be ignored when creating a `Draft`.
+      #               Can also accept a Has as an argument where each key is the attribute to ignore (either
+      #               a `String` or `Symbol`) and each value is a `Proc` whose return value, `true` or
+      #               `false`, determines if it is ignored.
+      # :meta         A hash of extra data to store. Each key in the hash (either a `String` or `Symbol`)
+      #               must be a column on the `drafts` table, otherwise it is ignored. You must add these
+      #               columns yourself. The values are either objects or procs (which are called with `self`,
+      #               i.e. the model the draft is being made from).
+      # :on           An array of events that will cause a draft to be created.
+      #               Defaults to `[:create, :update, :destroy]`.
+      # :only         Inverse of the `:ignore` option. Only the attributes supplied will be passed along to
+      #               the draft.
+      # :unless       Proc that allows you to specify the conditions under which drafts are not made.
       def has_drafts(options = {})
+        # Only include the instance methods when this `has_drafts` is called to avoid cluttering up models.
         send :include, InstanceMethods
 
+        # Add `before_draft_save`, `after_draft_save`, and `around_draft_save` callbacks.
         send :define_model_callbacks, :draft_save
 
         class_attribute :draft_association_name
         self.draft_association_name = options[:draft] || :draft
 
+        # The draft this instance was reified from.
         attr_accessor self.draft_association_name
 
         class_attribute :draft_class_name
         self.draft_class_name = options[:class_name] || 'Draft'
 
-        class_attribute :ignore
-        self.ignore = ([options[:ignore]].flatten.compact || []).map &:to_s
+        class_attribute :draft_options
+        self.draft_options = options.dup
 
-        class_attribute :if_condition
-        self.if_condition = options[:if]
+        [:ignore, :only].each do |option|
+          draft_options[option] = [draft_options[option]].flatten.compact.map { |attr| attr.is_a?(Hash) ? attr.stringify_keys : attr.to_s }
+        end
 
-        class_attribute :unless_condition
-        self.unless_condition = options[:unless]
-
-        class_attribute :skip
-        self.skip = ([options[:skip]].flatten.compact || []).map &:to_s
-
-        class_attribute :only
-        self.only = ([options[:only]].flatten.compact || []).map &:to_s
-
-        class_attribute :drafts_enabled_for_model
-        self.drafts_enabled_for_model = true
+        draft_options[:meta] ||= {}
 
         class_attribute :drafts_association_name
         self.drafts_association_name = options[:drafts] || :drafts
 
-        if ActiveRecord::VERSION::STRING.to_f >= 4.0 # `has_many` syntax for specifying order uses a lambda in Rails 4
+        if ActiveRecord::VERSION::MAJOR >= 4 # `has_many` syntax for specifying order uses a lambda in Rails 4
           has_many self.drafts_association_name,
                    lambda { order("#{Kentouzu.timestamp_field} ASC, #{self.primary_key} ASC") },
                    :class_name => draft_class_name,
@@ -49,7 +67,7 @@ module Kentouzu
           has_many self.drafts_association_name,
                    :class_name => draft_class_name,
                    :as         => :item,
-                   :order      => "#{Kentouzu.timestamp_field} ASC, #{self.draft_class_name.constantize.primary_key} ASC",
+                   :order      => "#{Kentouzu.timestamp_field} ASC, #{self.draft_class.primary_key} ASC",
                    :dependent  => :destroy
         end
 
@@ -58,7 +76,7 @@ module Kentouzu
         end
 
         define_singleton_method "all_with_reified_#{drafts_association_name.to_s}".to_sym do |order_by = Kentouzu.timestamp_field, &block|
-          existing_drafts = Draft.where("`drafts`.`item_type` = \"#{self.base_class.name}\" AND `drafts`.`item_id` IS NOT NULL").group_by { |draft| draft.item_id }.map { |k, v| v.sort_by { |draft| draft.created_at }.last }
+          existing_drafts = Draft.where("`drafts`.`item_type` = \"#{self.base_class.name}\" AND `drafts`.`item_id` IS NOT NULL").group_by { |draft| draft.item_id }.map { |_, v| v.sort_by { |draft| draft.created_at }.last }
 
           new_drafts = Draft.where("`drafts`.`item_type` = \"#{self.base_class.name}\" AND `drafts`.`item_id` IS NULL")
 
@@ -83,17 +101,39 @@ module Kentouzu
           all_objects
         end
 
+        def drafts_off!
+          Kentouzu.enabled_for_model(self, false)
+        end
+
         def drafts_off
-          self.drafts_enabled_for_model = false
+          warn 'DEPRECATED: use `drafts_off!` instead of `drafts_off`. Will be removed in Kentouzu 0.2.0.'
+
+          self.drafts_off!
+        end
+
+        def drafts_on!
+          Kentouzu.enabled_for_model(self, true)
         end
 
         def drafts_on
-          self.drafts_enabled_for_model = true
+          warn 'DEPRECATED: use `drafts_on!` instead of `drafts_on`. Will be removed in Kentouzu 0.2.0.'
+
+          self.drafts_on!
+        end
+
+        def drafts_enabled_for_model?
+          Kentouzu.enabled_for_model?(self)
+        end
+
+        def draft_class
+          @draft_class ||= draft_class_name.constantize
         end
       end
     end
 
     module InstanceMethods
+      # Override the default `save` method and replace it with one that checks to see if a draft should be saved.
+      # If a draft should be saved the original object instance is left untouched and a new draft is created.
       def self.included(base)
         default_save = base.instance_method(:save)
 
@@ -108,9 +148,7 @@ module Kentouzu
               :object => self.to_yaml
             }
 
-            data.merge!(Kentouzu.controller_info.slice(:item_type, :item_id, :event, :source_type, :source_id) || {})
-
-            draft = Draft.new(data)
+            draft = Draft.new(merge_metadata(data))
 
             run_callbacks :draft_save do
               draft.save
@@ -151,6 +189,10 @@ module Kentouzu
         self.class.drafts_on if drafts_were_enabled
       end
 
+      def drafts_enabled_for_model?
+        self.class.drafts_enabled_for_model?
+      end
+
       private
 
       def draft_class
@@ -161,11 +203,29 @@ module Kentouzu
         send self.class.draft_association_name
       end
 
+      def merge_metadata(data)
+        draft_options[:meta].each do |key, value|
+          if value.respond_to?(:call)
+            data[key] = value.call(self)
+          elsif value.is_a?(Symbol) && respond_to?(value)
+            data[key] = send(value)
+          else
+            data[key] = value
+          end
+        end
+
+        data.merge(Kentouzu.controller_info || {})
+      end
+
       def switched_on?
-        Kentouzu.enabled? && Kentouzu.enabled_for_controller? && self.class.drafts_enabled_for_model
+        Kentouzu.enabled? && Kentouzu.enabled_for_controller? && self.drafts_enabled_for_model?
       end
 
       def save_draft?
+        if_condition = self.draft_options[:if]
+
+        unless_condition = self.draft_options[:unless]
+
         (if_condition.blank? || if_condition.call(self)) && !unless_condition.try(:call, self)
       end
     end
