@@ -89,9 +89,15 @@ class Draft < ActiveRecord::Base
         model = klass.new
       end
 
-      loaded_object.attributes.each do |key, value|
+      has_many_associations = model.class.reflect_on_all_associations(:has_many).reject { |association| association.name == :drafts }.map { |association| association.name }
+
+      loaded_object.each do |key, value|
         if model.respond_to?("#{key}=")
-          model.send :write_attribute, key.to_sym, value
+          if has_many_associations.include?(key.to_sym)
+            model.send "#{key}=".to_sym, value.map { |v| model.send(key.to_sym).proxy_association.klass.new(v) }
+          else
+            model.send :write_attribute, key.to_sym, value
+          end
         else
           logger.warn "Attribute #{key} does not exist on #{item_type} (Draft ID: #{id})."
         end
@@ -108,7 +114,7 @@ class Draft < ActiveRecord::Base
   end
 
   def approve
-    warn 'DEPRECATED: `approve` should be handled by your application, not Kentouzu. Will be removed in Kentouzu 0.2.0.'
+    warn 'DEPRECATED: `approve` should be handled by your application, not Kentouzu. Will be removed in Kentouzu 0.3.0.'
 
     model = self.reify
 
@@ -130,7 +136,7 @@ class Draft < ActiveRecord::Base
   end
 
   def reject
-    warn 'DEPRECATED: `reject` should be handled by your application, not Kentouzu. Will be removed in Kentouzu 0.2.0.'
+    warn 'DEPRECATED: `reject` should be handled by your application, not Kentouzu. Will be removed in Kentouzu 0.3.0.'
 
     self.destroy
   end

@@ -106,7 +106,7 @@ module Kentouzu
         end
 
         def drafts_off
-          warn 'DEPRECATED: use `drafts_off!` instead of `drafts_off`. Will be removed in Kentouzu 0.2.0.'
+          warn 'DEPRECATED: use `drafts_off!` instead of `drafts_off`. Will be removed in Kentouzu 0.3.0.'
 
           self.drafts_off!
         end
@@ -116,7 +116,7 @@ module Kentouzu
         end
 
         def drafts_on
-          warn 'DEPRECATED: use `drafts_on!` instead of `drafts_on`. Will be removed in Kentouzu 0.2.0.'
+          warn 'DEPRECATED: use `drafts_on!` instead of `drafts_on`. Will be removed in Kentouzu 0.3.0.'
 
           self.drafts_on!
         end
@@ -229,7 +229,7 @@ module Kentouzu
           :event => draft_event.to_s,
           :source_type => Kentouzu.source.present? ? Kentouzu.source.class.to_s : nil,
           :source_id => Kentouzu.source.present? ? Kentouzu.source.id : nil,
-          :object => self.to_yaml
+          :object => self.as_json(include: self.class.reflect_on_all_associations(:has_many).map { |a| a.name }.reject { |a| a == :drafts }).to_yaml
         }
 
         draft = Draft.new(merge_metadata(data))

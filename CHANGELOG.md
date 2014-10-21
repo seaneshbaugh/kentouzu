@@ -1,5 +1,7 @@
-## v0.1.3
+## v0.2.0
 
+* Breaking changes to the way objects are serialized and deserialized.
+* `has_many` associations are now serialized along with the object.
 * Deprecated `drafts_on` and `drafts_off` in favor of `drafts_on!` and `drafts_off!`.
 * Added `Kentouzu.enabled_for_model` and `Kentouzu.enabled_for_model?`.
 * Added `Kentouzu.active_record_protected_attributes?` to enable handling of attr_accessible.
