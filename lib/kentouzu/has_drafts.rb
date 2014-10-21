@@ -139,22 +139,19 @@ module Kentouzu
 
         base.send :define_method, :save do
           if switched_on? && save_draft?
-            data = {
-              :item_type => self.class.base_class.to_s,
-              :item_id => self.id,
-              :event => self.persisted? ? 'update' : 'create',
-              :source_type => Kentouzu.source.present? ? Kentouzu.source.class.to_s : nil,
-              :source_id => Kentouzu.source.present? ? Kentouzu.source.id : nil,
-              :object => self.to_yaml
-            }
-
-            draft = Draft.new(merge_metadata(data))
-
-            run_callbacks :draft_save do
-              draft.save
-            end
+            save_draft
           else
             default_save.bind(self).call
+          end
+        end
+
+        default_save_with_bang = base.instance_method(:save!)
+
+        base.send :define_method, :save! do
+          if switched_on? && save_draft?
+            save_draft
+          else
+            default_save_with_bang.bind(self).call
           end
         end
       end
@@ -214,7 +211,36 @@ module Kentouzu
           end
         end
 
-        data.merge(Kentouzu.controller_info || {})
+        (Kentouzu.controller_info || {}).each do |key, value|
+          if value.respond_to?(:call)
+            data[key] = value.call(self)
+          elsif value.is_a?(Symbol) && respond_to?(value)
+            data[key] = send(value)
+          end
+        end
+
+        data
+      end
+
+      def save_draft
+        data = {
+          :item_type => self.class.base_class.to_s,
+          :item_id => self.id,
+          :event => draft_event.to_s,
+          :source_type => Kentouzu.source.present? ? Kentouzu.source.class.to_s : nil,
+          :source_id => Kentouzu.source.present? ? Kentouzu.source.id : nil,
+          :object => self.to_yaml
+        }
+
+        draft = Draft.new(merge_metadata(data))
+
+        run_callbacks :draft_save do
+          draft.save
+        end
+      end
+
+      def draft_event
+        @draft_event ||= self.persisted? ? :update : :create
       end
 
       def switched_on?
@@ -222,11 +248,13 @@ module Kentouzu
       end
 
       def save_draft?
+        on_events = Array(self.draft_options[:on])
+
         if_condition = self.draft_options[:if]
 
         unless_condition = self.draft_options[:unless]
 
-        (if_condition.blank? || if_condition.call(self)) && !unless_condition.try(:call, self)
+        (on_events.empty? || on_events.include?(draft_event)) && (if_condition.blank? || if_condition.call(self)) && !unless_condition.try(:call, self)
       end
     end
   end

@@ -6,6 +6,7 @@
 * Attempt to load `protected_attributes` gem if it's available.
 * Added `Draft.with_source_keys`.
 * Deprecated `Draft#approve` and `Draft#reject`.
+* Added override for `save!`.
 
 ## v0.1.2
 
