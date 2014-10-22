@@ -1,3 +1,7 @@
+## v0.2.2
+
+* Turns out `save` can take arguments.
+
 ## v0.2.1
 
 * Added `@draft` instance variable inside `safe_draft` so it's available for callbacks.

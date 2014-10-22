@@ -137,7 +137,7 @@ module Kentouzu
       def self.included(base)
         default_save = base.instance_method(:save)
 
-        base.send :define_method, :save do
+        base.send :define_method, :save do |*|
           if switched_on? && save_draft?
             save_draft
           else
@@ -147,7 +147,7 @@ module Kentouzu
 
         default_save_with_bang = base.instance_method(:save!)
 
-        base.send :define_method, :save! do
+        base.send :define_method, :save! do |*|
           if switched_on? && save_draft?
             save_draft
           else
