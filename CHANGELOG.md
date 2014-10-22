@@ -1,3 +1,7 @@
+## v0.2.1
+
+* Added `@draft` instance variable inside `safe_draft` so it's available for callbacks.
+
 ## v0.2.0
 
 * Breaking changes to the way objects are serialized and deserialized.

@@ -232,10 +232,10 @@ module Kentouzu
           :object => self.as_json(include: self.class.reflect_on_all_associations(:has_many).map { |a| a.name }.reject { |a| a == :drafts }).to_yaml
         }
 
-        draft = Draft.new(merge_metadata(data))
+        @draft = Draft.new(merge_metadata(data))
 
         run_callbacks :draft_save do
-          draft.save
+          @draft.save
         end
       end
 
