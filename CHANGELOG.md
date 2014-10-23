@@ -1,3 +1,7 @@
+## v0.2.3
+
+* Ignore `has_many` associations if they have the `:through` option.
+
 ## v0.2.2
 
 * Turns out `save` can take arguments.

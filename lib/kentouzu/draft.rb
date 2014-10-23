@@ -89,7 +89,7 @@ class Draft < ActiveRecord::Base
         model = klass.new
       end
 
-      has_many_associations = model.class.reflect_on_all_associations(:has_many).reject { |association| association.name == :drafts }.map { |association| association.name }
+      has_many_associations = model.class.reflect_on_all_associations(:has_many).reject { |association| association.name == :drafts || association.options.keys.include?(:through) }.map { |association| association.name }
 
       loaded_object.each do |key, value|
         if model.respond_to?("#{key}=")

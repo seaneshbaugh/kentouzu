@@ -229,7 +229,7 @@ module Kentouzu
           :event => draft_event.to_s,
           :source_type => Kentouzu.source.present? ? Kentouzu.source.class.to_s : nil,
           :source_id => Kentouzu.source.present? ? Kentouzu.source.id : nil,
-          :object => self.as_json(include: self.class.reflect_on_all_associations(:has_many).map { |a| a.name }.reject { |a| a == :drafts }).to_yaml
+          :object => self.as_json(include: self.class.reflect_on_all_associations(:has_many).reject { |association| association.name == :drafts || association.options.keys.include?(:through) }.map { |association| association.name }).to_yaml
         }
 
         @draft = Draft.new(merge_metadata(data))
