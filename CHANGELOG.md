@@ -1,3 +1,7 @@
+## v0.2.4
+
+* Keep track of `has_and_belongs_to_many` associations.
+
 ## v0.2.3
 
 * Ignore `has_many` associations if they have the `:through` option.
