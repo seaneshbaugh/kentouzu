@@ -91,10 +91,14 @@ class Draft < ActiveRecord::Base
 
       has_many_associations = model.class.reflect_on_all_associations(:has_many).reject { |association| association.name == :drafts || association.options.keys.include?(:through) }.map { |association| association.name }
 
+      has_and_belongs_to_many_associations = model.class.reflect_on_all_associations(:has_and_belongs_to_many).map { |association| association.plural_name }
+
       loaded_object.each do |key, value|
         if model.respond_to?("#{key}=")
           if has_many_associations.include?(key.to_sym)
             model.send "#{key}=".to_sym, value.map { |v| model.send(key.to_sym).proxy_association.klass.new(v) }
+          elsif has_and_belongs_to_many_associations.include?(key.gsub('_ids', '').pluralize)
+            model.send "#{key.gsub('_ids', '').pluralize}=".to_sym, model.class.reflect_on_all_associations(:has_and_belongs_to_many).select { |association| association.plural_name == key.gsub('_ids', '').pluralize }.first.class_name.constantize.where(id: value)
           else
             model.send :write_attribute, key.to_sym, value
           end

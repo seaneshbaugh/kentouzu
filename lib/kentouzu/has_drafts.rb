@@ -229,7 +229,7 @@ module Kentouzu
           :event => draft_event.to_s,
           :source_type => Kentouzu.source.present? ? Kentouzu.source.class.to_s : nil,
           :source_id => Kentouzu.source.present? ? Kentouzu.source.id : nil,
-          :object => self.as_json(include: self.class.reflect_on_all_associations(:has_many).reject { |association| association.name == :drafts || association.options.keys.include?(:through) }.map { |association| association.name }).to_yaml
+          :object => self.as_json(include: draftable_has_many_associations, methods: draftable_has_and_belongs_to_many_associations).to_yaml
         }
 
         @draft = Draft.new(merge_metadata(data))
@@ -255,6 +255,20 @@ module Kentouzu
         unless_condition = self.draft_options[:unless]
 
         (on_events.empty? || on_events.include?(draft_event)) && (if_condition.blank? || if_condition.call(self)) && !unless_condition.try(:call, self)
+      end
+
+      def draftable_associations
+        draftable_has_many_associations + draftable_has_and_belongs_to_many_associations
+      end
+
+      def draftable_has_many_associations
+        self.class.reflect_on_all_associations(:has_many).reject { |association| association.name == :drafts || association.options.keys.include?(:through) }.map { |association| association.name }
+      end
+
+      def draftable_has_and_belongs_to_many_associations
+        self.class.reflect_on_all_associations(:has_and_belongs_to_many).map { |association| "#{association.plural_name.singularize}_ids".to_sym }
+
+        #self.class.reflect_on_all_associations(:has_and_belongs_to_many).map { |association| association.name }
       end
     end
   end
